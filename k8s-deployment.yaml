@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: actuator-healthcheck-example
+  labels:
+    app: actuator-healthcheck-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: actuator-healthcheck-example
+  template:
+    metadata:
+      labels:
+        app: actuator-healthcheck-example
+    spec:
+      containers:
+        - name: actuator-healthcheck-example
+          image: actuator-healthcheck-example:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: actuator-healthcheck-example-svc
+  labels:
+    app: actuator-healthcheck-example
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: actuator-healthcheck-example
